@@ -60,6 +60,8 @@ echo 'server {
     }
 }' > /etc/nginx/conf.d/default.conf
 
+echo '<?php phpinfo();' > cd /usr/local/nginx/html/index.php
+
 echo Port number Nginx web service (80)?
 read portnumber
 
@@ -68,3 +70,5 @@ sed -i 's/www-error.log/www-php.error.log/g' /etc/php-fpm.d/www.conf
 
 service php-fpm restart
 service nginx restart
+
+echo http://148.251.3.246:$portnumber/
