@@ -44,8 +44,7 @@ systemctl enable php-fpm
 systemctl start php-fpm
 
 
-echo > /etc/nginx/conf.d/default.conf <<EOF
-server {
+echo 'server {
     listen       16149;
     server_name  localhost;
     location / {
@@ -59,8 +58,7 @@ server {
         fastcgi_param SCRIPT_FILENAME /usr/local/nginx/html$fastcgi_script_name;
         include        fastcgi_params;
     }
-}
-EOF
+}' > /etc/nginx/conf.d/default.conf
 
 sed -i 's/80;/16149;/g' /etc/nginx/conf.d/default.conf
 sed -i 's/www-error.log/www-php.error.log/g' /etc/php-fpm.d/www.conf
