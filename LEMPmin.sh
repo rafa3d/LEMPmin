@@ -16,7 +16,7 @@
 ls -l /etc/localtime
 timedatectl set-timezone Europe/Madrid
 
-yum remove -y apache2 httpd bind mysql bind9
+yum remove -y apache2 bind mysql bind9
 yum install -y nano wget sudo
 ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa 2>/dev/null <<< y >/dev/null
 
@@ -45,7 +45,7 @@ systemctl start php-fpm
 
 
 echo 'server {
-    listen       16149;
+    listen       80;
     server_name  localhost;
     location / {
         root    /usr/local/nginx/html;
@@ -60,7 +60,10 @@ echo 'server {
     }
 }' > /etc/nginx/conf.d/default.conf
 
-sed -i 's/80;/16149;/g' /etc/nginx/conf.d/default.conf
+echo Port number Nginx web service (80)?
+read portnumber
+
+sed -i 's/80;/$portnumber;/g' /etc/nginx/conf.d/default.conf
 sed -i 's/www-error.log/www-php.error.log/g' /etc/php-fpm.d/www.conf
 
 service php-fpm restart
