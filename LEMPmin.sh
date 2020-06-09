@@ -73,7 +73,8 @@ systemctl enable mariadb >&- 2>&-
 systemctl start mariadb >&- 2>&-
 
 pass=$(openssl rand -base64 8 2>&1)
-echo -e "\n\n$pass\n$pass\n\n\n\n\n" | mysql_secure_installation 2>/dev/null
+echo -e "\n\n$pass\n$pass\n\n\n\n\n" | mysql_secure_installation 2>&- 2>&-
+#>/dev/null
 
 xx=$(yum info mariadb)
 xxx=$(echo $xx | cut -d':' -f 12)
