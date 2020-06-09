@@ -1,23 +1,43 @@
 #!env bash
 
- if [[ -e /etc/redhat-release ]]; then
-        RELEASE_RPM=$(rpm -qf /etc/centos-release)
-        RELEASE=$(rpm -q --qf '%{VERSION}' ${RELEASE_RPM})
-        if [ ${RELEASE} != "7" ]; then
-            echo "Not CentOS release 7."
-            exit 1
-        fi
-    else
-        echo "Not CentOS system."
+
+printf "\033[1;37m  _    ___ __  __ ___       _        _   __
+ | |  | __|  \/  | _ \_ __ (_)_ _   / | /  \
+ | |__| _|| |\/| |  _/ '  \| | ' \  | || () |
+ |____|___|_|  |_|_| |_|_|_|_|_||_| |_(_)__/
+                                             \033[0m\n"
+if [[ -e /etc/redhat-release ]]; then
+    RELEASE_RPM=$(rpm -qf /etc/centos-release)
+    RELEASE=$(rpm -q --qf '%{VERSION}' ${RELEASE_RPM})
+    if [ ${RELEASE} != "7" ]; then
+        echo "Not CentOS release 7."
         exit 1
     fi
+else
+    echo "Not CentOS system."
+    exit 1
+fi
 
+xx=$(cat /etc/redhat-release)
+printf "OS\t\tCentOS "
+xxx=$(echo $xx | cut -d' ' -f 4)
+printf "$xxx "
+arch
 
-ls -l /etc/localtime
-timedatectl set-timezone Europe/Madrid
+ls -l /etc/localtime >&- 2>&-
+timedatectl set-timezone Europe/Madrid >&- 2>&-
+printf "Date\t\t"
+date
 
-yum remove -y apache2 bind mysql bind9
-yum install -y nano wget sudo
+printf "Port Nginx web (80)? "
+read portnumber
+
+printf "Be patient, installing...\r"
+
+start=`date +%s`
+
+yum remove apache2 bind mysql bind9 -y >&- 2>&-
+yum install -y nano wget sudo >&- 2>&-
 ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa 2>/dev/null <<< y >/dev/null
 
 
@@ -29,21 +49,30 @@ gpgcheck=0
 enabled=1
 EOF
 
-yum -y install nginx
+yum -y install nginx >&- 2>&-
 
-yum install -y epel-release yum-utils
-yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm
-yum-config-manager --enable remi-php73
- 
-yum install -y php php-common php-opcache php-mcrypt php-cli php-gd php-curl 
+xx=$(nginx -v 2>&1)
+printf "Nginx installed version "
+echo $xx | cut -d'/' -f 2
+
+yum install -y epel-release yum-utils >&- 2>&-
+yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm >&- 2>&-
+yum-config-manager --enable remi-php73 >&- 2>&-
+
+yum install -y php php-common php-opcache php-mcrypt php-cli php-gd php-curl >&- 2>&-
 #quito php-mysqlnd
 
-yum install -y php-fpm
+yum install -y php-fpm >&- 2>&-
 
-systemctl enable php-fpm
-systemctl start php-fpm
+systemctl enable php-fpm >&- 2>&-
+systemctl start php-fpm >&- 2>&-
+
+xx=$(php -v 2>&1)
+printf "PHP installed version "
+echo $xx | cut -d' ' -f 2
 
 
+printf "Modifing Nginx and PHP-fpm files\r"
 echo 'server {
     listen       80;
     server_name  localhost;
@@ -60,15 +89,32 @@ echo 'server {
     }
 }' > /etc/nginx/conf.d/default.conf
 
-echo '<?php phpinfo();' > cd /usr/local/nginx/html/index.php
+printf "Creating index.php with phpinfo()\n"
+mkdir -p /usr/local/nginx/html >&- 2>&-
+touch /usr/local/nginx/html/index.php >&- 2>&-
+echo '<?php phpinfo();' > /usr/local/nginx/html/index.php
 
-echo Port number Nginx web service (80)?
-read portnumber
+if [ -z "$portnumber" ]
+then
+    portnumber=80
+fi
 
-sed -i 's/80;/$portnumber;/g' /etc/nginx/conf.d/default.conf
-sed -i 's/www-error.log/www-php.error.log/g' /etc/php-fpm.d/www.conf
 
-service php-fpm restart
-service nginx restart
+sed -i "s/80;/$portnumber;/g" /etc/nginx/conf.d/default.conf
+sed -i "s/www-error.log/www-php.error.log/g" /etc/php-fpm.d/www.conf
 
-echo http://148.251.3.246:$portnumber/
+service php-fpm restart >&- 2>&-
+service nginx restart >&- 2>&-
+
+
+printf "Nginx conf\t\033[1;34m/etc/nginx/conf.d/default.conf\033[0m\n"
+printf "PHP-FPM conf\t\033[1;34m/etc/php-fpm.d/www.conf\033[0m\n"
+printf "Web index\t\033[1;34m/usr/local/nginx/html/index.php\033[0m\n"
+
+end=`date +%s`
+
+runtime=$((end-start))
+
+printf "Execution time\t${runtime} seconds \n"
+
+printf "Nginx web URL\t\033[1;32mhttp://148.251.3.246:${portnumber}/\033[0m\n"
