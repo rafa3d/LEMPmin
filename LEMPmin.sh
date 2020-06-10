@@ -31,7 +31,7 @@ date
 printf "Port Nginx web (80)? "
 read portnumber
 
-printf "Installing ~2 minuts...\r"
+printf "Be patient. Installing ~2 minuts...\n"
 
 start=`date +%s`
 
