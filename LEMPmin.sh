@@ -31,7 +31,7 @@ date
 printf "Port Nginx web (80)? "
 read portnumber
 
-printf "Be patient, installing...\r"
+printf "Installing ~2 minuts...\r"
 
 start=`date +%s`
 
@@ -50,7 +50,7 @@ EOF
 yum -y install nginx >&- 2>&-
 
 xx=$(nginx -v 2>&1)
-printf "Nginx installed version "
+printf "Nginx version\t"
 echo $xx | cut -d'/' -f 2
 
 yum install -y epel-release yum-utils >&- 2>&-
@@ -65,7 +65,7 @@ systemctl enable php-fpm >&- 2>&-
 systemctl start php-fpm >&- 2>&-
 
 xx=$(php -v 2>&1)
-printf "PHP installed version "
+printf "PHP version\t"
 echo $xx | cut -d' ' -f 2
 
 yum install -y mariadb-server >&- 2>&-
@@ -89,7 +89,7 @@ mkdir dbgui >&- 2>&-
 tar -xf phpMyAdmin-latest-english.tar.xz -C dbgui --strip=1 >&- 2>&-
 rm -rf phpMyAdmin-latest-english.tar.xz >&- 2>&-
 
-printf "phpMyAdmin installed \t\033[1;34m/usr/local/nginx/html/dbgui\033[0m\n"
+printf "phpMyAdmin installed \t/usr/local/nginx/html/dbgui\r"
 
 
 printf "Modifing Nginx and PHP-fpm files\r"
@@ -136,8 +136,8 @@ yum clean all >/dev/null 2>&1
 
 runtime=$((end-start))
 
-printf "Execution time\t${runtime} seconds \n"
+printf "Execution time\t\033[1;37m${runtime} seconds\033[0m\n"
 
-printf "phpMyAdmin web URL\t\033[1;32mhttp://148.251.3.246:${portnumber}/dbgui/\033[0m\n"
+printf "phpMyAdmin URL\t\033[1;32mhttp://148.251.3.246:${portnumber}/dbgui/\033[0m\n"
 printf "Nginx web URL\t\033[1;32mhttp://148.251.3.246:${portnumber}/\033[0m\n"
 
