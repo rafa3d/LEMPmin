@@ -110,7 +110,6 @@ echo 'server {
 }' > /etc/nginx/conf.d/default.conf
 
 printf "Creating index.php with phpinfo()\n"
-mkdir -p /usr/local/nginx/html >&- 2>&-
 touch /usr/local/nginx/html/index.php >&- 2>&-
 echo '<?php phpinfo();' > /usr/local/nginx/html/index.php
 
@@ -133,9 +132,12 @@ printf "Web index\t\033[1;34m/usr/local/nginx/html/index.php\033[0m\n"
 
 end=`date +%s`
 
+yum clean all >/dev/null 2>&1
+
 runtime=$((end-start))
 
 printf "Execution time\t${runtime} seconds \n"
 
 printf "phpMyAdmin web URL\t\033[1;32mhttp://148.251.3.246:${portnumber}/dbgui/\033[0m\n"
 printf "Nginx web URL\t\033[1;32mhttp://148.251.3.246:${portnumber}/\033[0m\n"
+
