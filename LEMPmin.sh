@@ -36,7 +36,7 @@ printf "Be patient, installing...\r"
 start=`date +%s`
 
 yum remove apache2 bind mysql bind9 -y >&- 2>&-
-yum install -y nano wget sudo >&- 2>&-
+yum install -y nano wget >&- 2>&-
 ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa 2>/dev/null <<< y >/dev/null
 
 cat > /etc/yum.repos.d/nginx.repo <<EOF
@@ -81,6 +81,16 @@ xxx=$(echo $xx | cut -d':' -f 12)
 printf "MariaDB installed version"
 printf "$xxx"
 printf "with pass: $pass\n"
+
+
+cd /usr/local/nginx/html/ >&- 2>&-
+wget https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-english.tar.xz >&- 2>&-
+mkdir dbgui >&- 2>&-
+tar -xf phpMyAdmin-latest-english.tar.xz -C dbgui --strip=1 >&- 2>&-
+rm -rf phpMyAdmin-latest-english.tar.xz >&- 2>&-
+
+printf "phpMyAdmin installed \t\033[1;34m/usr/local/nginx/html/dbgui\033[0m\n"
+
 
 printf "Modifing Nginx and PHP-fpm files\r"
 echo 'server {
@@ -127,4 +137,5 @@ runtime=$((end-start))
 
 printf "Execution time\t${runtime} seconds \n"
 
+printf "phpMyAdmin web URL\t\033[1;32mhttp://148.251.3.246:${portnumber}/dbgui/\033[0m\n"
 printf "Nginx web URL\t\033[1;32mhttp://148.251.3.246:${portnumber}/\033[0m\n"
