@@ -82,9 +82,9 @@ printf "MariaDB installed version"
 printf "$xxx"
 printf "with pass: $pass\n"
 
-
+mkdir -p /usr/local/nginx/html >&- 2>&-
 cd /usr/local/nginx/html/ >&- 2>&-
-wget https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-english.tar.xz >&- 2>&-
+wget https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-english.tar.xz >/dev/null 2>&1
 mkdir dbgui >&- 2>&-
 tar -xf phpMyAdmin-latest-english.tar.xz -C dbgui --strip=1 >&- 2>&-
 rm -rf phpMyAdmin-latest-english.tar.xz >&- 2>&-
