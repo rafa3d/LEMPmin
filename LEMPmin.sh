@@ -9,7 +9,7 @@ if [[ -e /etc/redhat-release ]]; then
     RELEASE_RPM=$(rpm -qf /etc/centos-release)
     RELEASE=$(rpm -q --qf '%{VERSION}' ${RELEASE_RPM})
     if [ ${RELEASE} != "6" ] || [ ${RELEASE} != "7" ]; then
-        echo "Not CentOS release 6/7."
+        echo "Not CentOS 6 or 7."
         exit 1
     fi
 else
