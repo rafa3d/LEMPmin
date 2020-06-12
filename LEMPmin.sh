@@ -8,7 +8,7 @@ printf "\033[1;37m  _    ___ __  __ ___       _        _   __
 if [[ -e /etc/redhat-release ]]; then
     RELEASE_RPM=$(rpm -qf /etc/centos-release)
     RELEASE=$(rpm -q --qf '%{VERSION}' ${RELEASE_RPM})
-    if [ ${RELEASE} != "7" ]; then
+    if [ ${RELEASE} != "6" || ${RELEASE} != "7" ]; then
         echo "Not CentOS release 7."
         exit 1
     fi
@@ -42,19 +42,20 @@ ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa 2>/dev/null <<< y >/dev/null
 cat > /etc/yum.repos.d/nginx.repo <<EOF
 [nginx]
 name=nginx repo
-baseurl=http://nginx.org/packages/mainline/centos/7/\$basearch/
+baseurl=http://nginx.org/packages/mainline/centos/${RELEASE}/\$basearch/
 gpgcheck=0
 enabled=1
 EOF
 
 yum -y install nginx >&- 2>&-
+systemctl enable nginx >&- 2>&-
 
 xx=$(nginx -v 2>&1)
 printf "Nginx version\t"
 echo $xx | cut -d'/' -f 2
 
 yum install -y epel-release yum-utils >&- 2>&-
-yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm >&- 2>&-
+yum install -y http://rpms.remirepo.net/enterprise/remi-release-${RELEASE}.rpm >&- 2>&-
 yum-config-manager --enable remi-php73 >&- 2>&-
 
 yum install -y php php-common php-opcache php-mcrypt php-cli php-gd php-curl php-mysqlnd >&- 2>&-
@@ -78,9 +79,9 @@ echo -e "\n\n$pass\n$pass\n\n\n\n\n" | mysql_secure_installation >&- 2>&-
 
 xx=$(yum info mariadb)
 xxx=$(echo $xx | cut -d':' -f 12)
-printf "MariaDB installed version"
-printf "$xxx"
-printf "with pass: $pass\n"
+printf "MariaDB version\t"
+printf "$xxx\n"
+printf "Mysql root pass\t\033[1;37m$pass\033[0m\n"
 
 mkdir -p /usr/local/nginx/html >&- 2>&-
 cd /usr/local/nginx/html/ >&- 2>&-
@@ -109,7 +110,7 @@ echo 'server {
     }
 }' > /etc/nginx/conf.d/default.conf
 
-printf "Creating index.php with phpinfo()\n"
+#printf "Creating index.php with phpinfo()\n"
 touch /usr/local/nginx/html/index.php >&- 2>&-
 echo '<?php phpinfo();' > /usr/local/nginx/html/index.php
 
